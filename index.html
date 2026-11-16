@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Interactive 3D Osteology Viewer</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,Arial,sans-serif;background:#101827;color:#fff}header{padding:13px 18px;background:#19263a;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}h1{font-size:18px;margin:0}header small{color:#b8c7d9}main{position:relative;height:calc(100dvh - 69px);min-height:380px}#viewer{width:100%;height:100%;display:block;touch-action:none}#panel{position:absolute;top:16px;left:16px;background:#19263ae8;border:1px solid #4a5a70;border-radius:12px;padding:14px;max-width:min(330px,calc(100% - 32px))}#panel p{font-size:13px;color:#d2dce8;line-height:1.5;margin:10px 0}button,.upload{border:0;background:#3279db;color:white;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px;display:inline-block}button{background:#3c506b}.actions{display:flex;gap:8px;flex-wrap:wrap}#saveView{background:#287a65}input[type=file]{display:none}#status{font-size:12px;color:#c9d6e7;word-break:break-word;margin-top:10px}#empty{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;color:#9baec7;text-align:center;padding:20px}#empty.hidden{display:none}#markers{position:absolute;inset:0;pointer-events:none;overflow:hidden}.marker{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;border:2px solid #fff;background:#e3a22a;color:#142034;border-radius:50%;width:26px;height:26px;padding:0;font-weight:800;box-shadow:0 2px 8px #0008}.marker.active{background:#67d8bb}.marker[hidden]{display:none!important}#answer{position:absolute;bottom:18px;right:18px;background:#19263af2;border:1px solid #6d839d;border-radius:12px;padding:13px 18px;max-width:min(320px,65%);text-align:left;display:none;pointer-events:none}#answer b{color:#8fe2ce}#editor{margin-top:12px;display:grid;gap:7px}#editor input{background:#0c1727;color:white;border:1px solid #60748b;border-radius:6px;padding:8px;width:100%}#editor label{font-size:12px;color:#cbd6e5}#editor .actions button{font-size:12px;padding:8px}#editor[hidden],#answer[hidden]{display:none}#mode{background:#276b82}#panel{max-height:calc(100% - 30px);overflow:auto;z-index:3}#markers{z-index:2}.marker{font-size:12px;touch-action:manipulation}.marker:focus-visible{outline:3px solid #fff;outline-offset:3px}#answer{z-index:4;position:absolute;top:50%;right:16px;bottom:auto;transform:translateY(-50%);width:350px;max-width:calc(100% - 32px);background:#f7f9fc;color:#172c48;border:1px solid #dce4ef;border-radius:12px;padding:18px;box-shadow:0 12px 35px #0003;pointer-events:auto;max-height:calc(100% - 32px);overflow:auto}#answer .info-eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#986900;font-weight:800}#answer .info-title{font-size:23px;line-height:1.2;margin:8px 0 18px;font-weight:750;color:#09264b}#answer .info-heading{font-size:14px;font-weight:750;border-top:1px solid #dce4ef;padding-top:15px;color:#163b66}#answer .info-body{font-size:14px;line-height:1.55;color:#47566a;margin:9px 0 2px;white-space:pre-wrap}#answer details{border-top:1px solid #dce4ef;padding:13px 0}#answer details summary{cursor:pointer;font-size:14px;font-weight:750;color:#163b66;list-style:none;display:flex;align-items:center;justify-content:space-between}#answer details summary::-webkit-details-marker{display:none}#answer details summary::after{content:'⌄';font-size:20px;color:#63758b}#answer details[open] summary::after{content:'⌃'}#answer details .info-body{margin:10px 0 2px}#answer .info-number{font-size:12px;color:#687a92;margin:0}#editor textarea{background:#0c1727;color:white;border:1px solid #60748b;border-radius:6px;padding:8px;width:100%;font:inherit;resize:vertical;min-height:75px}main.student #viewer{width:calc(100% - 380px)}#answer[hidden]{display:none!important}@media(max-width:900px){main.student #viewer{width:100%}#answer{top:auto;bottom:12px;right:12px;transform:none;width:min(350px,calc(100% - 24px));max-height:40%}}@media(max-width:550px){main{height:calc(100dvh - 90px)}#panel{top:10px;left:10px;padding:10px}}
+#panel{display:none}main:not(.student) #panel{display:block}header #saveView{display:none}main:not(.student)~*{}@media(max-width:900px){main.student #viewer{width:100%}}
+</style>
+</head>
+<body>
+<header><div><h1>Interactive 3D Osteology Viewer</h1><small>Stage 11 · Student-ready automatic loading</small></div><div class="actions"><button id="mode">Switch to Teacher mode</button><button id="saveView">Set as default view</button><button id="reset">Reset view</button></div></header>
+<main><canvas id="viewer"></canvas><div id="markers" aria-label="Anatomical markers"></div><div id="answer" role="status" aria-live="polite"></div><div id="empty">Loading atlas model…</div><div id="panel"><label class="upload" for="file">Choose GLB model</label><input id="file" type="file" accept=".glb,.gltf,model/gltf-binary"><p><b>Rotate:</b> drag with one finger or left mouse button<br><b>Zoom:</b> pinch or scroll<br><b>Pan:</b> two-finger drag or right mouse button</p><div id="status" role="status">Waiting for a model.</div><div id="editor"><p><b>Teacher mode:</b> click a point on the bone to place a marker. Drag to rotate as usual.</p><label>Marker number<input id="number" type="number" min="1" step="1" placeholder="Automatic" /></label><label>Anatomical name<input id="label" type="text" placeholder="e.g. Posterior tubercle" /></label><label>Overview (optional)<textarea id="overview" placeholder="Describe the anatomical landmark."></textarea></label><label>Attachments (optional)<textarea id="attachments" placeholder="Muscle, ligament or other attachments."></textarea></label><label>Clinical importance (optional)<textarea id="clinical" placeholder="Relevant clinical applications."></textarea></label><label>Others (optional)<textarea id="others" placeholder="Additional teaching notes."></textarea></label><div class="actions"><button id="add">Add marker</button><button id="delete">Delete selected</button><button id="clear">Clear all markers</button></div><div class="actions"><button id="export">Export labels + view</button><label class="upload" for="import">Import labels</label><input id="import" type="file" accept=".json,application/json" /></div><p id="selection">No point selected.</p></div></div></main>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+const canvas=document.getElementById('viewer'), status=document.getElementById('status'), empty=document.getElementById('empty');
+const scene=new THREE.Scene();scene.background=new THREE.Color('#101827');
+const camera=new THREE.PerspectiveCamera(45,1,0.001,10000);camera.position.set(0,0,4);
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;
+const controls=new OrbitControls(camera,canvas);controls.enableDamping=true;controls.dampingFactor=0.08;controls.minDistance=0.02;controls.maxDistance=1000;
+scene.add(new THREE.HemisphereLight(0xffffff,0x65718a,2));
+const light=new THREE.DirectionalLight(0xffffff,2.5);light.position.set(3,5,6);scene.add(light);
+const fill=new THREE.DirectionalLight(0xffffff,1);fill.position.set(-4,-2,-5);scene.add(fill);
+let model=null,home=null,modelKey=null,annotations=[],selected=null,pending=null,teacher=false;const answer=document.getElementById('answer'),editor=document.getElementById('editor');document.querySelector('main').classList.add('student');editor.hidden=true;const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let down=null;function annotationsKey(){return modelKey+':annotations'}function persist(){if(!modelKey)return;try{localStorage.setItem(annotationsKey(),JSON.stringify(annotations))}catch(e){status.textContent='Storage unavailable; export your labels to keep them.'}}function hideAnswer(){selected=null;answer.innerHTML='';answer.style.display='none'}function showAnswer(a){
+ selected=a.id;answer.replaceChildren();
+ const tag=document.createElement('div');tag.className='info-eyebrow';tag.textContent='Selected landmark';
+ const title=document.createElement('div');title.className='info-title';title.textContent=a.label;
+ const number=document.createElement('p');number.className='info-number';number.textContent='Marker '+a.number;
+ answer.append(tag,title,number);
+ for(const [heading,key] of [['Overview','overview'],['Attachments','attachments'],['Clinical importance','clinical'],['Others','others']]){
+  const details=document.createElement('details');details.open=key==='overview';
+  const summary=document.createElement('summary');summary.textContent=heading;
+  const body=document.createElement('p');body.className='info-body';body.textContent=a[key]?.trim()||'No information added yet.';
+  details.append(summary,body);answer.append(details);
+ }
+ answer.style.display='block';
+}function clearSelection(){pending=null;document.getElementById('selection').textContent='No point selected.'}// Real 3D stickers, parented to the model. They do not face the camera.
+const markerSprites=new Map();let markerSize=0.03;
+const markerLayer=document.getElementById('markers');markerLayer.style.display='none';
+function clearMarkerSprites(){
+ for(const m of markerSprites.values()){
+  m.parent?.remove(m);m.geometry.dispose();m.material.map?.dispose();m.material.dispose();
+ }
+ markerSprites.clear();
+}
+function stickerTexture(number){
+ const c=document.createElement('canvas');c.width=c.height=256;
+ const x=c.getContext('2d');x.clearRect(0,0,256,256);
+ x.beginPath();x.arc(128,128,113,0,Math.PI*2);x.fillStyle='#e3a22a';x.fill();
+ x.lineWidth=13;x.strokeStyle='#ffffff';x.stroke();
+ x.font='bold 132px Arial, sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillStyle='#142034';x.fillText(String(number),128,135,210);
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
+}
+function renderMarkers(){
+ if(!model){clearMarkerSprites();return}
+ const live=new Set(annotations.map(a=>a.id));
+ for(const [id,m] of markerSprites){if(!live.has(id)){
+  m.parent?.remove(m);m.geometry.dispose();m.material.map.dispose();m.material.dispose();markerSprites.delete(id)
+ }}
+ for(const a of annotations){
+  let m=markerSprites.get(a.id);
+  if(!m){
+   const geo=new THREE.PlaneGeometry(markerSize,markerSize);
+   const mat=new THREE.MeshBasicMaterial({map:stickerTexture(a.number),transparent:true,side:THREE.FrontSide,depthTest:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+   m=new THREE.Mesh(geo,mat);m.userData.markerId=a.id;
+   m.userData.markerNumber=a.number;m.renderOrder=2;
+   model.add(m);markerSprites.set(a.id,m);
+  }
+  if(m.userData.markerNumber!==a.number){m.material.map.dispose();m.material.map=stickerTexture(a.number);m.userData.markerNumber=a.number}
+  const normal=new THREE.Vector3().fromArray(a.normal||[0,0,1]).normalize();
+  m.position.fromArray(a.position).addScaledVector(normal,markerSize*0.035);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),normal);
+  m.scale.setScalar(selected===a.id?1.12:1);
+ }
+}
+function getPointer(event){const r=canvas.getBoundingClientRect();pointer.set((event.clientX-r.left)/r.width*2-1,-(event.clientY-r.top)/r.height*2+1);raycaster.setFromCamera(pointer,camera)}
+function boneHits(){return raycaster.intersectObject(model,true).filter(h=>h.object.isMesh&&!h.object.userData.markerId)}
+function pickMarker(event){
+ getPointer(event);
+ const hits=raycaster.intersectObjects([...markerSprites.values()],false);
+ // Bone intersections in front of the sticker must block selection.
+ const bone=boneHits();
+ for(const hit of hits){
+  if(bone.length && bone[0].distance<hit.distance-markerSize*0.04)continue;
+  const item=annotations.find(a=>a.id===hit.object.userData.markerId);
+  if(item)return item;
+ }
+ return null;
+}
+function surfaceNormal(hit){
+ // Transform the actual triangle normal into world coordinates, then model-local.
+ const n=hit.face.normal.clone().transformDirection(hit.object.matrixWorld);
+ const inv=new THREE.Matrix4().copy(model.matrixWorld).invert();
+ return n.transformDirection(inv).normalize().toArray();
+}
+function activateMarker(current){
+ showAnswer(current);
+ if(teacher){
+  document.getElementById('number').value=current.number;
+  document.getElementById('label').value=current.label;document.getElementById('overview').value=current.overview||'';for(const key of ['attachments','clinical','others'])document.getElementById(key).value=current[key]||'';
+  pending={position:[...current.position],normal:[...(current.normal||[0,0,1])],id:current.id};
+  document.getElementById('selection').textContent='Editing marker '+current.number+'. Click Add marker to save changes.';
+ }
+}
+
+function viewData(){return {position:camera.position.toArray(),target:controls.target.toArray()}}
+function applyView(v){if(!v||!Array.isArray(v.position)||!Array.isArray(v.target)||v.position.length!==3||v.target.length!==3)return false;camera.position.fromArray(v.position);controls.target.fromArray(v.target);controls.update();controls.saveState();return true}
+function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(canvas);resize();
+function fit(object){const box=new THREE.Box3().setFromObject(object);const size=box.getSize(new THREE.Vector3());const center=box.getCenter(new THREE.Vector3());object.position.sub(center);const max=Math.max(size.x,size.y,size.z);if(!Number.isFinite(max)||max<=0)throw Error('The model has no visible geometry.');const dist=max/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)))*1.65;camera.near=Math.max(dist/1000,0.00001);camera.far=dist*1000;camera.updateProjectionMatrix();camera.position.set(dist*.4,dist*.25,dist);controls.target.set(0,0,0);controls.minDistance=dist*.05;controls.maxDistance=dist*20;controls.update();home=viewData();controls.saveState()}
+async function loadBone(url,displayName,key){
+ const gltf=await new GLTFLoader().loadAsync(url);
+ if(model)scene.remove(model);clearMarkerSprites();model=gltf.scene;scene.add(model);fit(model);
+ const boneBounds=new THREE.Box3().setFromObject(model);
+ markerSize=Math.max(boneBounds.getSize(new THREE.Vector3()).length()*0.022,0.00001);
+ modelKey=key;annotations=[];hideAnswer();clearSelection();renderMarkers();empty.classList.add('hidden');
+ status.textContent='Loaded: '+displayName;
+}
+function applyAnnotationData(data){
+ if(!['osteology-annotations-v1','osteology-annotations-v2'].includes(data.format)||!Array.isArray(data.annotations)||!data.annotations.every(a=>Array.isArray(a.position)&&a.position.length===3&&a.position.every(Number.isFinite)&&typeof a.label==='string'&&Number.isInteger(a.number)))throw Error('Invalid annotation file');
+ annotations=data.annotations.map(a=>({...a,normal:a.normal||[0,0,1]}));persist();
+ if(data.view&&applyView(data.view))home=viewData();
+ hideAnswer();clearSelection();renderMarkers();
+}
+document.getElementById('file').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;status.textContent='Loading '+file.name+'…';const url=URL.createObjectURL(file);
+ try{await loadBone(url,file.name,'osteology-view:'+file.name+':'+file.size+':'+file.lastModified);status.textContent='Model loaded. Import its JSON annotations if needed.'}
+ catch(err){status.textContent='Could not load this file: '+err.message}finally{URL.revokeObjectURL(url)}
+});
+async function autoLoadAtlas(){
+ if(location.protocol==='file:'){
+  empty.textContent='Automatic loading requires a local web server or hosted website. You can still load the GLB and JSON manually.';
+  status.textContent='For automatic loading, serve this folder over HTTP (see README).';return;
+ }
+ try{
+  status.textContent='Loading atlas.glb automatically…';
+  await loadBone('./atlas.glb','Atlas (C1)','osteology-view:atlas.glb');
+  const response=await fetch('./atlas-annotations.json',{cache:'no-store'});
+  if(!response.ok)throw Error('atlas-annotations.json not found (HTTP '+response.status+')');
+  applyAnnotationData(await response.json());
+  status.textContent='Atlas loaded with '+annotations.length+' anatomical markers. Select a number to explore.';
+ }catch(err){status.textContent='Automatic setup incomplete: '+err.message+'. You can load files manually.';if(!model)empty.textContent='Add atlas.glb and atlas-annotations.json to this folder, then serve it over HTTP.'}
+}
+document.getElementById('saveView').onclick=()=>{if(!model)return void(status.textContent='Load a GLB model first.');controls.update();home=viewData();controls.saveState();try{localStorage.setItem(modelKey,JSON.stringify(home));status.textContent='Default view saved for this model in this browser. Reset view will return here.'}catch(e){status.textContent='Default view set for this session (browser storage unavailable).'}};
+document.getElementById('reset').onclick=()=>{if(!home)return;controls.reset();status.textContent='Returned to your default view.'};
+document.getElementById('mode').onclick=()=>{teacher=!teacher;document.querySelector('main').classList.toggle('student',!teacher);editor.hidden=!teacher;document.getElementById('mode').textContent=teacher?'Switch to Student mode':'Switch to Teacher mode';hideAnswer();clearSelection();renderMarkers();status.textContent=teacher?'Teacher mode: click the bone to add markers.':'Student mode: tap a sticker attached to the bone to reveal its name.'};canvas.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY}});canvas.addEventListener('pointerup',e=>{if(!model||!down)return;const delta=Math.hypot(e.clientX-down.x,e.clientY-down.y);down=null;if(delta>5)return;const clicked=pickMarker(e);if(clicked){activateMarker(clicked);renderMarkers();return}if(!teacher){hideAnswer();return}getPointer(e);const hits=boneHits();if(!hits.length)return;const local=model.worldToLocal(hits[0].point.clone());pending={position:local.toArray(),normal:surfaceNormal(hits[0])};hideAnswer();document.getElementById('selection').textContent='Point selected on bone. Enter a name and click Add marker.';renderMarkers()});document.getElementById('add').onclick=()=>{if(!model||!pending)return void(status.textContent='Click the bone to select a point first.');const label=document.getElementById('label').value.trim();const overview=document.getElementById('overview').value.trim();const attachments=document.getElementById('attachments').value.trim();const clinical=document.getElementById('clinical').value.trim();const others=document.getElementById('others').value.trim();if(!label)return void(status.textContent='Enter an anatomical name first.');const requested=Number(document.getElementById('number').value);const number=Number.isInteger(requested)&&requested>0?requested:Math.max(0,...annotations.map(a=>a.number))+1;if(annotations.some(a=>a.number===number&&a.id!==pending.id))return void(status.textContent='This marker number is already used.');if(pending.id){const a=annotations.find(a=>a.id===pending.id);if(a){a.position=pending.position;a.normal=pending.normal;a.number=number;a.label=label;a.overview=overview;a.attachments=attachments;a.clinical=clinical;a.others=others}}else annotations.push({id:crypto.randomUUID(),position:pending.position,normal:pending.normal,number,label,overview,attachments,clinical,others});annotations.sort((a,b)=>a.number-b.number);persist();clearSelection();document.getElementById('number').value='';document.getElementById('label').value='';document.getElementById('overview').value='';for(const key of ['attachments','clinical','others'])document.getElementById(key).value='';hideAnswer();renderMarkers();status.textContent='Marker saved. Export labels + view to keep a shareable copy.'};document.getElementById('delete').onclick=()=>{if(!pending?.id)return void(status.textContent='Tap an existing marker to select it for deletion.');annotations=annotations.filter(a=>a.id!==pending.id);persist();clearSelection();hideAnswer();renderMarkers();status.textContent='Marker deleted.'};document.getElementById('clear').onclick=()=>{if(!model)return;if(!confirm('Delete all markers for this session? Export a backup first if needed.'))return;annotations=[];persist();clearSelection();hideAnswer();renderMarkers();status.textContent='All markers cleared.'};document.getElementById('export').onclick=()=>{if(!model)return void(status.textContent='Load a model first.');const data={format:'osteology-annotations-v2',modelName:modelKey,view:home,annotations};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='bone-annotations.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status.textContent='Exported labels and default view. Keep this JSON with your GLB.'};document.getElementById('import').onchange=async e=>{const f=e.target.files?.[0];if(!f||!model)return;try{const data=JSON.parse(await f.text());if(data.modelName&&data.modelName!==modelKey&&!confirm('These annotations were saved for a different model file. Import anyway?'))return;applyAnnotationData(data);status.textContent='Annotations imported.'}catch(err){status.textContent='Import failed: '+err.message}finally{e.target.value=''}};
+autoLoadAtlas();
+function animate(){requestAnimationFrame(animate);controls.update();renderMarkers();renderer.render(scene,camera)}animate();
+</script>
+</body></html>

@@ -1,0 +1,184 @@
+{
+  "format": "osteology-annotations-v2",
+  "modelName": "osteology-view:Atlas.glb:6561756:1786616654491",
+  "view": {
+    "position": [
+      -192.58222729909855,
+      -1.4782429397978216,
+      -12.318240399689646
+    ],
+    "target": [
+      0,
+      0,
+      0
+    ]
+  },
+  "annotations": [
+    {
+      "id": "0f952ded-8762-4990-8e52-da5c5bd39ce6",
+      "position": [
+        -17.575205552221693,
+        3.457041874901897,
+        -6.67986913275584
+      ],
+      "normal": [
+        -0.8432289336195444,
+        -0.04227426994855089,
+        -0.5358897756135705
+      ],
+      "number": 1,
+      "label": "Anterior arch",
+      "overview": "- It is smaller than the posterior arch\n- It connects 2 lateral masses",
+      "attachments": "- Anterior atlanto-occipital membrane in the upper border",
+      "clinical": "",
+      "others": ""
+    },
+    {
+      "id": "e75a2331-805c-45d3-ada2-7765e0348f01",
+      "position": [
+        -21.57173774521471,
+        0.6722369438519635,
+        0.31333379357272406
+      ],
+      "normal": [
+        -0.9779855913855726,
+        0.19377704327650194,
+        0.07742506403761401
+      ],
+      "number": 2,
+      "label": "Anterior tubercle",
+      "overview": "- It is present on the anterior surface of the anterior arch in the midline",
+      "attachments": "- Anterior longitudinal ligament",
+      "clinical": "",
+      "others": ""
+    },
+    {
+      "id": "77504f53-904d-43b0-a53d-99717a26fac9",
+      "position": [
+        -5.500805555114585,
+        8.65009061456501,
+        -16.967102688490172
+      ],
+      "normal": [
+        0.21752443914342462,
+        0.750442932988822,
+        0.6241141904351103
+      ],
+      "number": 3,
+      "label": "Superior articular facet",
+      "overview": ""
+    },
+    {
+      "id": "3f74ec38-fb92-4ed9-9c71-2846935956e5",
+      "position": [
+        13.849326669433719,
+        10.090832711779434,
+        -9.987785607517708
+      ],
+      "normal": [
+        -0.39604649961144195,
+        0.817079202807307,
+        -0.41896150955105604
+      ],
+      "number": 4,
+      "label": "Posterior arch",
+      "overview": ""
+    },
+    {
+      "id": "17398d95-65ff-4b77-ba9a-df14fbaea86b",
+      "position": [
+        18.918251397106456,
+        13.753733415163218,
+        -0.1795719470962922
+      ],
+      "normal": [
+        0.19299055143539906,
+        0.8630694998175599,
+        -0.46676084405327706
+      ],
+      "number": 5,
+      "label": "Posterior tubercle",
+      "overview": ""
+    },
+    {
+      "id": "c39ee128-1172-4871-a8b2-fc494d563945",
+      "position": [
+        -5.114737397081544,
+        -5.252792536576912,
+        15.820104621064957
+      ],
+      "normal": [
+        0.1824326560033154,
+        -0.8668783810547893,
+        -0.4639398651586256
+      ],
+      "number": 6,
+      "label": "Inferior articular facet",
+      "overview": ""
+    },
+    {
+      "id": "9331740a-1b4d-45f1-b4e1-2f75c6b0eb83",
+      "position": [
+        -1.4054873515722655,
+        3.8198941832663778,
+        33.18869752022027
+      ],
+      "normal": [
+        -0.46716538564113064,
+        0.7409300855694029,
+        -0.482471875612342
+      ],
+      "number": 7,
+      "label": "Transverse process",
+      "overview": ""
+    },
+    {
+      "id": "864c8c82-a699-4a11-97bc-568f6064d5db",
+      "position": [
+        -1.925729373415141,
+        2.597311375965411,
+        -29.207293727760003
+      ],
+      "normal": [
+        -0.23796525096954688,
+        0.3375590482606936,
+        0.910728515128595
+      ],
+      "number": 8,
+      "label": "Foramen transversarium",
+      "overview": ""
+    },
+    {
+      "id": "464d43d7-ed17-4494-ae99-e15c165f4af2",
+      "position": [
+        -15.273405600892008,
+        3.82906585280697,
+        0.13070866070856368
+      ],
+      "normal": [
+        0.9917230175933175,
+        -0.013594413614241897,
+        -0.12767399223839368
+      ],
+      "number": 9,
+      "label": "Oval facet",
+      "overview": ""
+    },
+    {
+      "id": "880f18cf-ab6c-4e26-b57e-563d7b1803c9",
+      "position": [
+        -7.965996903109602,
+        1.7675845122213119,
+        8.82907525680622
+      ],
+      "normal": [
+        0.16392925414052203,
+        0.4729853206666927,
+        -0.8656859049740605
+      ],
+      "number": 10,
+      "label": "Tubercle - medial surface",
+      "overview": ""
+    }
+  ]
+}
